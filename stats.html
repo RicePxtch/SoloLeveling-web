@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Solo Leveling - Hologram System</title>
+  <style> 
+  /* Buttons Container */
+        .buttons-container {
+            position: absolute;
+            bottom: 20px;
+            display: flex;
+            gap: 20px;
+        }
+
+        /* Button Styles */
+        .button {
+            padding: 10px 20px;
+            border: 2px solid rgba(47, 79, 255, 0.8);
+            border-radius: 5px;
+            background: rgba(0, 0, 0, 0.6);
+            color: cyan;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(47, 79, 255, 0.6);
+        }
+
+        .button:hover {
+            background: rgba(47, 79, 255, 0.8);
+            color: #000;
+            box-shadow: 0 0 20px rgba(47, 79, 255, 0.8);
+        }
+    /* Particle Background */
+    .particles {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+    /*Smoke Effect */
+.smoke {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  z-index: -2;
+  background: 
+    radial-gradient(circle at 20% 20%, 
+      rgba(47, 79, 255, 0.1) 10%,
+      rgba(0, 0, 0, 0.8) 70%),
+    radial-gradient(circle at 80% 80%, 
+      rgba(100, 255, 255, 0.1) 10%,
+      rgba(0, 0, 0, 0.8) 70%);
+  animation: smokeAnimation 20s infinite linear;
+  mix-blend-mode: screen;
+}
+
+@keyframes smokeAnimation {
+  0% { 
+    transform: scale(1) rotate(0deg);
+    opacity: 0.3;
+  }
+  50% { 
+    transform: scale(1.4) rotate(180deg);
+    opacity: 0.6;
+  }
+  100% { 
+    transform: scale(1) rotate(360deg);
+    opacity: 0.3;
+  }
+}
+
+/*nebula effect */
+body::after {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -3;
+  background: 
+    radial-gradient(circle at 70% 20%, 
+      rgba(47, 79, 255, 0.1) 0%,
+      rgba(0, 0, 0, 0.8) 40%),
+    radial-gradient(circle at 30% 80%, 
+      rgba(100, 255, 255, 0.1) 0%,
+      rgba(0, 0, 0, 0.8) 40%);
+  animation: nebulaPulse 30s infinite alternate;
+}
+
+@keyframes nebulaPulse {
+  from {
+    opacity: 0.3;
+    filter: hue-rotate(0deg);
+  }
+  to {
+    opacity: 0.6;
+    filter: hue-rotate(360deg);
+  }
+}
+
+    @keyframes smokeAnimation {
+      0% { transform: scale(1); opacity: 0.5; }
+      50% { transform: scale(1.2); opacity: 0.8; }
+      100% { transform: scale(1); opacity: 0.5; }
+    }
+
+    /* Body Styling */
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle, #000, #111);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      color: #fff;
+      overflow-x: hidden;
+    }
+
+    /* Main Container */
+    .solo-leveling-stats {
+      position: relative;
+      width: 700px;
+      padding: 2rem;
+      box-sizing: border-box;
+      border: 2px solid rgba(47, 79, 255, 0.8);
+      border-radius: 10px;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      animation: slideIn 0.5s ease-out, flicker 2s infinite;
+      box-shadow: 0 0 30px rgba(47, 79, 255, 0.6), 0 0 60px rgba(47, 79, 255, 0.4);
+      overflow: hidden;
+    }
+
+    /* Static Scan Lines */
+    .solo-leveling-stats::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        transparent 50%,
+        rgba(47, 79, 255, 0.1) 50%
+      );
+      background-size: 100% 4px;
+      pointer-events: none;
+    }
+
+    /* Hologram Glow */
+    .solo-leveling-stats::after {
+      content: '';
+      position: absolute;
+      top: -10px;
+      left: -10px;
+      width: calc(100% + 20px);
+      height: calc(100% + 20px);
+      background: radial-gradient(
+        circle,
+        rgba(47, 79, 255, 0.3),
+        rgba(47, 79, 255, 0) 70%
+      );
+      border-radius: 10px;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateY(-50px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    @keyframes flicker {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.95; }
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .stat-item {
+      background: rgba(26, 26, 46, 0.8);
+      border-left: 4px solid rgba(47, 79, 255, 0.8);
+      padding: 1rem;
+      text-align: center;
+      box-shadow: 0 0 10px rgba(47, 79, 255, 0.2);
+      transition: all 0.3s ease;
+      color: #fff;
+      text-shadow: 0 0 5px rgba(47, 79, 255, 0.8);
+    }
+
+    .stat-item:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 15px rgba(47, 79, 255, 0.5);
+    }
+
+    /* Leveling Bar */
+    .level-system {
+      margin-top: 2rem;
+      text-align: center;
+    }
+
+    .level-bar {
+      height: 10px;
+      background: #000;
+      border: 1px solid rgba(47, 79, 255, 0.8);
+      border-radius: 5px;
+      margin: 0.5rem 0;
+      overflow: hidden;
+    }
+
+    .level-progress {
+      height: 100%;
+      background: linear-gradient(90deg, rgba(47, 79, 255, 0.8), rgba(47, 79, 255, 0.4));
+      width: 0%;
+      transition: width 0.5s ease, background-color 0.3s ease;
+    }
+
+    /* Quest Section */
+    .quest-section {
+      margin-top: 2rem;
+    }
+
+    .quest-input {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    input, select, button {
+      padding: 0.5rem;
+      border: 1px solid rgba(47, 79, 255, 0.8);
+      background: rgba(0, 0, 0, 0.8);
+      color: #fff;
+      font-family: Arial, sans-serif;
+      transition: all 0.3s ease;
+    }
+
+    input::placeholder {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    button {
+      background: rgba(47, 79, 255, 0.8);
+      color: #000;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      background: rgba(47, 79, 255, 1);
+      box-shadow: 0 0 15px rgba(47, 79, 255, 0.8);
+    }
+
+    .quest-list {
+      margin-top: 1rem;
+    }
+
+    .quest-item {
+      padding: 0.5rem;
+      border-left: 4px solid rgba(47, 79, 255, 0.8);
+      margin-bottom: 0.5rem;
+      background: rgba(26, 26, 46, 0.8);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all 0.3s ease;
+      color: #fff;
+      text-shadow: 0 0 5px rgba(47, 79, 255, 0.8);
+    }
+
+    .quest-item button {
+      background: rgba(47, 79, 255, 0.8);
+      color: #000;
+      border: none;
+      padding: 0.3rem 0.7rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .quest-item button:hover {
+      background: rgba(47, 79, 255, 1);
+      box-shadow: 0 0 10px rgba(47, 79, 255, 0.8);
+    }
+
+    /* Controls Container */
+    .controls-container {
+      position: sticky;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 1rem;
+      margin-top: 1rem;
+      backdrop-filter: blur(5px);
+    }
+
+    .save-button {
+      background: rgba(47, 79, 255, 0.8);
+      color: #000;
+    }
+
+    .save-button:hover {
+      background: rgba(47, 79, 255, 1);
+    }
+
+    .reset-button {
+      background: rgba(255, 70, 85, 0.8);
+      color: #fff;
+    }
+
+    .reset-button:hover {
+      background: rgba(255, 70, 85, 1);
+    }
+
+    /* Notifications */
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 10px 20px;
+      background: rgba(47, 79, 255, 0.8);
+      color: #000;
+      border-radius: 5px;
+      animation: slideIn 0.5s ease-out;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: 0 0 15px rgba(47, 79, 255, 0.8);
+    }
+
+    .notification.success {
+      background: rgba(76, 112, 175, 0.8);
+      color: #000;
+    }
+
+    .notification.error {
+      background: rgba(255, 70, 85, 0.8);
+      color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <!-- Smoke Effect -->
+  <div class="smoke"></div>
+
+  <!-- Particle Background -->
+  <canvas class="particles" id="particles"></canvas>
+
+  <!-- Main Container -->
+  <div class="solo-leveling-stats">
+    <div class="stats-title">STATUS</div>
+
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+      <div class="stat-item">
+        <span class="stat-label">Intelligence</span>
+        <span id="intelligenceStat">0</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Strength</span>
+        <span id="strengthStat">0</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Discipline</span>
+        <span id="disciplineStat">0</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Social Skills</span>
+        <span id="socialStat">0</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Financial</span>
+        <span id="financialStat">0</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Stamina</span>
+        <span id="staminaStat">0</span>
+      </div>
+    </div>
+
+    <!-- Level System -->
+    <div class="level-system">
+      <h3>Level <span id="currentLevel">1</span></h3>
+      <div class="level-bar">
+        <div class="level-progress" id="levelProgress"></div>
+      </div>
+      <p>Total Points: <span id="totalPoints">0</span>/60</p>
+    </div>
+
+    <!-- Financial Tracker -->
+    <div class="financial-tracker">
+      <h3>💰 Financial Tracker</h3>
+      <input type="number" id="moneyInput" placeholder="Enter your current balance...">
+      <button onclick="updateMoney()">Update Balance</button>
+      <p>Current Balance: £<span id="moneyDisplay">0</span></p>
+    </div>
+
+    <hr class="divider"/>
+
+    <!-- Quest Section -->
+    <div class="quest-section">
+      <div class="stats-title">DAILY QUESTS</div>
+
+      <div class="quest-input">
+        <input type="text" id="questInput" placeholder="Enter quest...">
+        <select id="statSelect">
+          <option value="Intelligence">Intelligence</option>
+          <option value="Strength">Strength</option>
+          <option value="Discipline">Discipline</option>
+          <option value="Social">Social Skills</option>
+          <option value="Finance">Finance</option>
+          <option value="Stamina">Stamina</option>
+        </select>
+        <button onclick="addQuest()">Add Quest</button>
+      </div>
+
+      <div class="quest-list" id="questList"></div>
+    </div>
+    <style>
+  
+      /* Controls Container */
+      .controls-container {
+        position: sticky;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.8);
+        padding: 1rem;
+        margin-top: 1rem;
+        backdrop-filter: blur(5px);
+        display: flex; 
+        align-items: center; 
+        gap: 1rem; 
+      }
+  
+      /* Countdown Container */
+      .countdown-container {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-left: auto; /* Push to the right */
+      }
+  
+      .countdown-container h3 {
+        margin: 0;
+        font-size: 1rem;
+        color: #1239ff;
+        text-shadow: 0 0 5px rgba(56, 102, 255, 0.8);
+      }
+      
+    </style> 
+    <!-- Controls Container -->
+    <div class="controls-container">
+      <button class="save-button" onclick="saveQuests()">Save Quests</button>
+      <button class="reset-button" onclick="resetSystem()">Reset System</button>  
+      <button class="view-button" onclick="window.location.href='card.html'">View Rank</button>
+      <div class="countdown-container"> 
+        <h3>Daily Reset</h3> 
+        <div id="countdown">24:00:00</div>
+        
+      </div> 
+    </div>
+  </div> 
+  
+  <script>
+    // Countdown Timer
+    function updateCountdown() {
+      const now = new Date();
+      const night = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate() + 1,
+        0, 0, 0
+      );
+      const diff = night - now;
+
+      const hours = Math.floor(diff / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+      const countdown = document.getElementById('countdown');
+      countdown.textContent = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    }
+
+    setInterval(updateCountdown, 1000);
+    updateCountdown();
+  </script> 
+
+  <script>
+    // Particle Background
+    const canvas = document.getElementById('particles');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const particles = [];
+    class Particle {
+      constructor() {
+        this.reset();
+      }
+
+      reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 2;
+        this.speed = Math.random() * 0.5 + 0.1;
+        this.alpha = Math.random() * 0.5 + 0.1;
+      }
+
+      update() {
+        this.y += this.speed;
+        if (this.y > canvas.height) this.reset();
+        ctx.fillStyle = `rgba(47, 79, 255, ${this.alpha})`;
+        ctx.fillRect(this.x, this.y, this.size, this.size);
+      }
+    }
+
+    function initParticles() {
+      for (let i = 0; i < 100; i++) particles.push(new Particle());
+      animateParticles();
+    }
+
+    function animateParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => p.update());
+      requestAnimationFrame(animateParticles);
+    }
+
+    initParticles();
+
+    // Shadow System Class
+    class ShadowSystem {
+      constructor() {
+        this.stats = {
+          Intelligence: 0,
+          Strength: 0,
+          Discipline: 0,
+          Social: 0,
+          Financial: 0,
+          Stamina: 0
+        };
+        this.activeQuests = [];
+        this.level = 1;
+        this.money = 0;
+        this.loadProgress();
+        this.setupDailyReset();
+        this.renderAll();
+      }
+
+      addQuest(text, stat) {
+        if (this.activeQuests.length >= 6) return;
+
+        const quest = {
+          id: Date.now(),
+          text,
+          stat,
+          completed: false,
+          added: new Date()
+        };
+
+        this.activeQuests.push(quest);
+        this.renderQuests();
+        this.setQuestTimeout(quest);
+        this.showNotification(`Quest added: ${text}`, 'success');
+      }
+
+      setQuestTimeout(quest) {
+        setTimeout(() => {
+          if (!quest.completed) {
+            this.updateStat(quest.stat, -1);
+            this.activeQuests = this.activeQuests.filter(q => q.id !== quest.id);
+            this.renderQuests();
+            this.showNotification(`Quest failed! -1 ${quest.stat}`, 'error');
+          }
+        }, 1000 * 60 * 60 * 24);
+      }
+
+      completeQuest(questId) {
+        const quest = this.activeQuests.find(q => q.id === questId);
+        if (quest) {
+          const questElement = document.querySelector(`[onclick="system.completeQuest(${questId})"]`).parentElement;
+          questElement.classList.add('single-slide');
+
+          setTimeout(() => {
+            quest.completed = true;
+            this.updateStat(quest.stat, 1);
+            this.activeQuests = this.activeQuests.filter(q => q.id !== questId);
+            this.renderQuests();
+          }, 500);
+        }
+      }
+
+      updateStat(stat, value) {
+        this.stats[stat] += value;
+        this.checkLevelUp();
+        this.saveProgress();
+        this.renderAll();
+      }
+
+      updateMoney() {
+        const moneyInput = document.getElementById('moneyInput');
+        this.money = parseFloat(moneyInput.value) || 0;
+        this.saveProgress();
+        this.renderMoney();
+        this.showNotification(`Money updated: £${this.money.toFixed(2)}`, 'success');
+      }
+
+      get totalPoints() {
+        return Object.values(this.stats).reduce((a, b) => a + b, 0);
+      }
+
+      checkLevelUp() {
+        const pointsNeeded = this.level * 60; // 10 points per stat (6 stats)
+        if (this.totalPoints >= pointsNeeded) {
+          this.level++;
+          this.showNotification(`LEVEL UP! 🎉 Now Level ${this.level}`, 'success');
+          this.animateLevelUp();
+        }
+      }
+
+      animateLevelUp() {
+        const levelText = document.querySelector('.level-system h3');
+        levelText.classList.add('level-up');
+        setTimeout(() => levelText.classList.remove('level-up'), 500);
+      }
+
+      setupDailyReset() {
+        const now = new Date();
+        const night = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate() + 1,
+          0, 0, 0
+        );
+
+        setTimeout(() => {
+          this.activeQuests.forEach(quest => {
+            if (!quest.completed) {
+              this.updateStat(quest.stat, -1);
+            }
+          });
+          this.activeQuests = [];
+          this.renderQuests();
+          this.setupDailyReset();
+        }, night - now);
+      }
+
+      renderAll() {
+        this.renderStats();
+        this.renderLevel();
+        this.renderQuests();
+        this.renderMoney();
+      }
+
+      renderStats() {
+        document.getElementById('intelligenceStat').textContent = this.stats.Intelligence;
+        document.getElementById('strengthStat').textContent = this.stats.Strength;
+        document.getElementById('disciplineStat').textContent = this.stats.Discipline;
+        document.getElementById('socialStat').textContent = this.stats.Social;
+        document.getElementById('financialStat').textContent = this.stats.Financial;
+        document.getElementById('staminaStat').textContent = this.stats.Stamina;
+      }
+
+      renderLevel() {
+        const total = this.totalPoints;
+        const pointsNeeded = this.level * 60; // 10 points per stat (6 stats)
+        const progress = (total / pointsNeeded) * 100;
+
+        document.getElementById('currentLevel').textContent = this.level;
+        document.getElementById('totalPoints').textContent = total;
+        document.getElementById('levelProgress').style.width = `${Math.min(progress, 100)}%`;
+      }
+
+      renderQuests() {
+        const questList = document.getElementById('questList');
+        questList.innerHTML = this.activeQuests.map(quest => `
+          <div class="quest-item">
+            <span>${quest.text} (${quest.stat})</span>
+            <button onclick="system.completeQuest(${quest.id})">Complete</button>
+          </div>
+        `).join('');
+
+        // Add animation to last added quest
+        const lastQuest = questList.lastElementChild;
+        if (lastQuest) {
+          lastQuest.classList.add('single-slide');
+          setTimeout(() => lastQuest.classList.remove('single-slide'), 500);
+        }
+
+        // Smooth scroll to bottom
+        questList.scrollIntoView({ behavior: 'smooth', block: 'end' });
+      }
+
+      renderMoney() {
+        document.getElementById('moneyDisplay').textContent = this.money.toFixed(2);
+      }
+
+      saveQuests() {
+        this.saveProgress();
+        this.showNotification('Quests saved!', 'success');
+      }
+
+      resetSystem() {
+        if (confirm('Are you sure you want to reset the system?')) {
+          this.stats = {
+            Intelligence: 0,
+            Strength: 0,
+            Discipline: 0,
+            Social: 0,
+            Financial: 0,
+            Stamina: 0
+          };
+          this.activeQuests = [];
+          this.level = 1;
+          this.money = 0;
+          this.saveProgress();
+          this.renderAll();
+          this.showNotification('System reset!', 'success');
+        }
+      }
+
+      showNotification(text, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.innerHTML = `
+          <span>${text}</span>
+        `;
+        document.body.appendChild(notification);
+        setTimeout(() => {
+          notification.style.opacity = '0';
+          setTimeout(() => notification.remove(), 300);
+        }, 2700);
+      }
+
+      saveProgress() {
+        localStorage.setItem('shadowSystem', JSON.stringify({
+          stats: this.stats,
+          level: this.level,
+          money: this.money,
+          activeQuests: this.activeQuests
+        }));
+      }
+
+      loadProgress() {
+        const data = JSON.parse(localStorage.getItem('shadowSystem'));
+        if (data) {
+          this.stats = data.stats;
+          this.level = data.level;
+          this.money = data.money || 0;
+          this.activeQuests = data.activeQuests || [];
+          this.renderAll();
+        }
+      }
+    }
+
+    const system = new ShadowSystem();
+
+    function addQuest() {
+      const input = document.getElementById('questInput');
+      const stat = document.getElementById('statSelect').value;
+      if (input.value.trim()) {
+        system.addQuest(input.value.trim(), stat);
+        input.value = '';
+      }
+    }
+
+    function updateMoney() {
+      system.updateMoney();
+    }
+
+    function saveQuests() {
+      system.saveQuests();
+    }
+
+    function resetSystem() {
+      system.resetSystem();
+    }
+
+    // Handle window resize for particles
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+  </script> 
+  
+  
+  
+</body> 
+</html> 

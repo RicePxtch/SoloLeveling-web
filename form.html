@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Player Registration - Hologram Style</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron&display=swap');
+
+        /* Body and Background */
+        body {
+            margin: 0;
+            padding: 0;
+            background: radial-gradient(circle, #000, #111);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Orbitron', sans-serif;
+            color: cyan;
+            overflow: hidden;
+        }
+
+        /* Particle Background */
+        .particles {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        /* Enhanced Smoke Effect */
+        .smoke {
+            position: fixed;
+            width: 300%;
+            height: 300%;
+            z-index: -2;
+            background: 
+                radial-gradient(circle at 20% 20%, 
+                    rgba(47, 79, 255, 0.1) 10%,
+                    rgba(0, 0, 0, 0.8) 70%),
+                radial-gradient(circle at 80% 80%, 
+                    rgba(100, 255, 255, 0.1) 10%,
+                    rgba(0, 0, 0, 0.8) 70%);
+            animation: smokeAnimation 20s infinite linear;
+            mix-blend-mode: screen;
+        }
+
+        @keyframes smokeAnimation {
+            0% { transform: scale(1) rotate(0deg); opacity: 0.3; }
+            50% { transform: scale(1.4) rotate(180deg); opacity: 0.6; }
+            100% { transform: scale(1) rotate(360deg); opacity: 0.3; }
+        }
+
+        /* Form Container */
+        .form-container {
+            position: relative;
+            width: 350px;
+            padding: 20px;
+            border: 2px solid rgba(47, 79, 255, 0.8);
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            box-shadow: 0 0 30px rgba(47, 79, 255, 0.6), 0 0 60px rgba(47, 79, 255, 0.4);
+            text-align: center;
+            animation: slideIn 0.5s ease-out, flicker 2s infinite;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes flicker {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.95; }
+        }
+
+        /* Input Fields */
+        input, button {
+            width: 90%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid rgba(47, 79, 255, 0.8);
+            border-radius: 5px;
+            background: rgba(0, 0, 0, 0.8);
+            color: cyan;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        button {
+            background: rgba(47, 79, 255, 0.8);
+            color: #000;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: rgba(47, 79, 255, 1);
+            box-shadow: 0 0 15px rgba(47, 79, 255, 0.8);
+        }
+    </style>
+</head>
+<body>
+    <!-- Smoke Effect -->
+    <div class="smoke"></div>
+
+    <!-- Particle Background -->
+    <canvas class="particles" id="particles"></canvas>
+
+    <!-- Form Container -->
+    <div class="form-container">
+        <h2>Enter Player Information</h2>
+        <input type="text" id="inputName" placeholder="Enter Name" />
+        <input type="text" id="inputTitle" placeholder="Enter Job" />
+        <input type="number" id="inputPushups" placeholder="Push-ups (Previous: 0)" />
+        <input type="number" id="inputSquats" placeholder="Squats (Previous: 0)" />
+        <input type="number" id="inputSitups" placeholder="Sit-ups (Previous: 0)" />
+        <input type="file" id="uploadImage" accept="image/*" />
+        <button onclick="submitForm()">Generate Card</button>
+    </div>
+
+    <script>
+        // Load previous player info
+        const playerInfo = JSON.parse(localStorage.getItem("playerInfo")) || {};
+
+        // Set previous values
+        document.getElementById("inputName").value = playerInfo.name || "";
+        document.getElementById("inputTitle").value = playerInfo.title || "";
+        document.getElementById("inputPushups").placeholder = `Push-ups (Previous: ${playerInfo.pushups || 0})`;
+        document.getElementById("inputSquats").placeholder = `Squats (Previous: ${playerInfo.squats || 0})`;
+        document.getElementById("inputSitups").placeholder = `Sit-ups (Previous: ${playerInfo.situps || 0})`;
+
+        // If previous image exists, show message
+        if(playerInfo.image) {
+            document.getElementById("uploadImage").previousElementSibling.textContent = "Image already uploaded";
+        }
+
+        function submitForm() {
+            const name = document.getElementById("inputName").value || playerInfo.name;
+            const title = document.getElementById("inputTitle").value || playerInfo.title;
+            const pushups = parseInt(document.getElementById("inputPushups").value) || playerInfo.pushups || 0;
+            const squats = parseInt(document.getElementById("inputSquats").value) || playerInfo.squats || 0;
+            const situps = parseInt(document.getElementById("inputSitups").value) || playerInfo.situps || 0;
+            const imageFile = document.getElementById("uploadImage").files[0];
+
+            // Calculate rank based on workout points
+            const totalPoints = pushups + squats + situps;
+            let rank = "E";
+            if (totalPoints > 300) rank = "S";
+            else if (totalPoints > 200) rank = "A";
+            else if (totalPoints > 160) rank = "B";
+            else if (totalPoints > 120) rank = "C";
+            else if (totalPoints > 80) rank = "D";
+            else if (totalPoints > 40) rank = "F";
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const newPlayerInfo = {
+                    name: name,
+                    title: title,
+                    rank: rank,
+                    image: e.target.result || playerInfo.image,
+                    pushups: pushups,
+                    squats: squats,
+                    situps: situps
+                };
+                localStorage.setItem("playerInfo", JSON.stringify(newPlayerInfo));
+                window.location.href = "card.html";
+            };
+
+            if (imageFile) {
+                reader.readAsDataURL(imageFile);
+            } else {
+                const newPlayerInfo = {
+                    name: name,
+                    title: title,
+                    rank: rank,
+                    image: playerInfo.image || "",
+                    pushups: pushups,
+                    squats: squats,
+                    situps: situps
+                };
+                localStorage.setItem("playerInfo", JSON.stringify(newPlayerInfo));
+                window.location.href = "card.html";
+            }
+        }
+
+        // Particle System
+        const canvas = document.getElementById('particles');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const particles = [];
+        class Particle {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2;
+                this.speed = Math.random() * 0.5 + 0.1;
+                this.alpha = Math.random() * 0.5 + 0.1;
+            }
+
+            update() {
+                this.y += this.speed;
+                if (this.y > canvas.height) this.reset();
+                ctx.fillStyle = `rgba(47, 79, 255, ${this.alpha})`;
+                ctx.fillRect(this.x, this.y, this.size, this.size);
+            }
+        }
+
+        function initParticles() {
+            for (let i = 0; i < 100; i++) particles.push(new Particle());
+            animateParticles();
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => p.update());
+            requestAnimationFrame(animateParticles);
+        }
+
+        initParticles();
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Player Card - Hologram Style</title>
+    <body>
+        <audio autoplay src="videos/system ad 2.MP3"></audio>
+    </body>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron&display=swap');
+
+        /* Body and Background */
+        body {
+            margin: 0;
+            padding: 0;
+            background: radial-gradient(circle, #000, #111);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Orbitron', sans-serif;
+            color: cyan;
+            overflow: hidden;
+        }
+
+        /* Notification Style */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            background: rgba(47, 79, 255, 0.9);
+            color: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(47, 79, 255, 0.8);
+            display: none;
+            animation: slideIn 0.5s ease-out;
+            z-index: 1000;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Particle Background */
+        .particles {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        /*Smoke Effect */
+        .smoke {
+            position: fixed;
+            width: 300%;
+            height: 300%;
+            z-index: -2;
+            background: 
+                radial-gradient(circle at 20% 20%, 
+                    rgba(47, 79, 255, 0.1) 10%,
+                    rgba(0, 0, 0, 0.8) 70%),
+                radial-gradient(circle at 80% 80%, 
+                    rgba(100, 255, 255, 0.1) 10%,
+                    rgba(0, 0, 0, 0.8) 70%);
+            animation: smokeAnimation 20s infinite linear;
+            mix-blend-mode: screen;
+        }
+
+        @keyframes smokeAnimation {
+            0% { transform: scale(1) rotate(0deg); opacity: 0.3; }
+            50% { transform: scale(1.4) rotate(180deg); opacity: 0.6; }
+            100% { transform: scale(1) rotate(360deg); opacity: 0.3; }
+        }
+
+        /*Nebula Effect */
+        body::after {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            z-index: -3;
+            background: 
+                radial-gradient(circle at 70% 20%, 
+                    rgba(47, 79, 255, 0.1) 0%,
+                    rgba(0, 0, 0, 0.8) 40%),
+                radial-gradient(circle at 30% 80%, 
+                    rgba(100, 255, 255, 0.1) 0%,
+                    rgba(0, 0, 0, 0.8) 40%);
+            animation: nebulaPulse 30s infinite alternate, rotate 120s linear infinite;
+        }
+
+        @keyframes nebulaPulse {
+            from { opacity: 0.3; filter: hue-rotate(0deg); }
+            to { opacity: 0.6; filter: hue-rotate(360deg); }
+        }
+
+    
+
+        /* Player Card */
+        .player-card {
+            position: relative;
+            width: 700px;
+            padding: 30px;
+            border: 2px solid rgba(47, 79, 255, 0.8);
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            box-shadow: 0 0 30px rgba(47, 79, 255, 0.6), 0 0 60px rgba(47, 79, 255, 0.4);
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            animation: hologramOpen 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards, flicker 2s infinite;
+            transform: scale(0) rotateX(90deg);
+            opacity: 0;
+            transform-origin: center;
+            perspective: 1000px;
+        }
+
+        @keyframes hologramOpen {
+            0% {
+                transform: scale(0) rotateX(90deg);
+                opacity: 0;
+                filter: blur(20px);
+            }
+            70% {
+                transform: scale(1.1) rotateX(-15deg);
+                opacity: 0.8;
+                filter: blur(10px);
+            }
+            100% {
+                transform: scale(1) rotateX(0deg);
+                opacity: 1;
+                filter: blur(0);
+            }
+        }
+
+        @keyframes flicker {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.95; }
+        }
+
+        /* Static Scan Lines */
+        .player-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                transparent 50%,
+                rgba(47, 79, 255, 0.1) 50%
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
+        }
+
+        /* Hologram Glow */
+        .player-card::after {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            width: calc(100% + 20px);
+            height: calc(100% + 20px);
+            background: radial-gradient(
+                circle,
+                rgba(47, 79, 255, 0.3),
+                rgba(47, 79, 255, 0) 70%
+            );
+            border-radius: 10px;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Image Container */
+        .player-card img {
+            width: 200px;
+            height: 200px;
+            border-radius: 10px;
+            border: 2px solid rgba(47, 79, 255, 0.8);
+            margin-right: 30px;
+            box-shadow: 0 0 15px rgba(47, 79, 255, 0.6);
+            object-fit: cover;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        /* Text Container */
+        .player-info {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .player-info h2 {
+            margin: 0;
+            font-size: 2em;
+            color: rgb(255, 255, 255);
+            text-shadow: 0 0 5px rgb(13, 0, 255), 0 0 10px cyan;
+        }
+
+        .player-info p {
+            margin: 8px 0;
+            font-size: 1.3em;
+            color: rgb(255, 255, 255);
+            text-shadow: 0 0 5px rgba(47, 79, 255, 0.8);
+        }
+
+        .player-info .rank {
+            font-size: 1.8em;
+            color: gold;
+            text-shadow: 0 0 10px gold;
+        }
+
+        /* Buttons Container */
+        .buttons-container {
+            position: absolute;
+            bottom: 20px;
+            display: flex;
+            gap: 20px;
+        }
+
+        /* Button Styles */
+        .button {
+            padding: 10px 20px;
+            border: 2px solid rgba(47, 79, 255, 0.8);
+            border-radius: 5px;
+            background: rgba(0, 0, 0, 0.6);
+            color: rgb(34, 0, 255);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(47, 79, 255, 0.6);
+        }
+
+        .button:hover {
+            background: rgba(47, 79, 255, 0.8);
+            color: #000;
+            box-shadow: 0 0 20px rgba(47, 79, 255, 0.8);
+        }
+    </style>
+</head>
+<body>
+    <!-- Smoke Effect -->
+    <div class="smoke"></div>
+
+    <!-- Particle Background -->
+    <canvas class="particles" id="particles"></canvas>
+
+    <!-- Notification -->
+    <div class="notification" id="notification"></div>
+
+    <!-- Player Card -->
+    <div class="player-card">
+        <img id="profileImage" src="" alt="Profile Image" onload="this.style.opacity = 1;">
+        <div class="player-info">
+            <h2 id="playerName">Player Name</h2>
+            <p id="playerTitle">Job: Unknown</p>
+            <p>Push-ups: <span id="playerPushups">0</span></p>
+            <p>Squats: <span id="playerSquats">0</span></p>
+            <p>Sit-ups: <span id="playerSitups">0</span></p>
+            <p class="rank">Rank: <span id="playerRank">F</span></p>
+        </div>
+    </div>
+
+    <!-- Buttons Container -->
+    <div class="buttons-container">
+        <button class="button" onclick="window.location.href='form.html'">Generate Rank</button>
+        <button class="button" onclick="window.location.href='stats.html'">View Stats</button>
+        <button class="button" onclick="saveCard()">Save Card</button>
+    </div>
+
+    <script>
+        // Retrieve player info from localStorage
+        const playerInfo = JSON.parse(localStorage.getItem("playerInfo"));
+
+        // Update player card with data
+        if (playerInfo) {
+            document.getElementById("playerName").innerText = playerInfo.name || "Unknown";
+            document.getElementById("playerTitle").innerText = `Job: ${playerInfo.title || "Unknown"}`;
+            document.getElementById("playerPushups").innerText = playerInfo.pushups || 0;
+            document.getElementById("playerSquats").innerText = playerInfo.squats || 0;
+            document.getElementById("playerSitups").innerText = playerInfo.situps || 0;
+            document.getElementById("playerRank").innerText = playerInfo.rank || "F";
+            
+            // Handle image loading
+            const profileImage = document.getElementById("profileImage");
+            if (playerInfo.image) {
+                profileImage.src = playerInfo.image;
+            } else {
+                profileImage.style.display = "none";
+            }
+        }
+
+        // Save Card Function
+        function saveCard() {
+            const playerInfo = {
+                name: document.getElementById("playerName").innerText,
+                title: document.getElementById("playerTitle").innerText.replace("Job: ", ""),
+                pushups: parseInt(document.getElementById("playerPushups").innerText),
+                squats: parseInt(document.getElementById("playerSquats").innerText),
+                situps: parseInt(document.getElementById("playerSitups").innerText),
+                rank: document.getElementById("playerRank").innerText,
+                image: document.getElementById("profileImage").src
+            };
+
+            localStorage.setItem("playerInfo", JSON.stringify(playerInfo));
+            showNotification("Card saved successfully!");
+        }
+
+        // Notification system
+        function showNotification(message) {
+            const notification = document.getElementById("notification");
+            notification.textContent = message;
+            notification.style.display = "block";
+            setTimeout(() => {
+                notification.style.opacity = "0";
+                setTimeout(() => notification.style.display = "none", 300);
+            }, 2000);
+        }
+
+        //Particle System
+        const canvas = document.getElementById('particles');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const particles = [];
+        class Particle {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 1;
+                this.speed = Math.random() * 0.5 + 0.1;
+                this.alpha = Math.random() * 0.5 + 0.1;
+            }
+
+            update() {
+                this.y += this.speed;
+                if (this.y > canvas.height) this.reset();
+                ctx.fillStyle = `rgba(47, 79, 255, ${this.alpha})`;
+                ctx.fillRect(this.x, this.y, this.size, this.size);
+            }
+        }
+
+        function initParticles() {
+            for (let i = 0; i < 150; i++) particles.push(new Particle());
+            animateParticles();
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => p.update());
+            requestAnimationFrame(animateParticles);
+        }
+
+        initParticles();
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Solo Leveling - Hologram Notification</title>
+  <body>
+    <audio autoplay src="videos/0306.MP3"></audio>
+  </body>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle, #000, #111);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      font-family: Arial, sans-serif;
+      color: #fff;
+      overflow: hidden;
+    }
+
+    /* Particle Background */
+    .particles {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+    }
+
+    /*Smoke Effect */
+    .smoke {
+      position: fixed;
+      width: 100%;
+      height: 100%;
+      z-index: -2;
+      background: 
+        radial-gradient(circle at 20% 20%, 
+          rgba(47, 79, 255, 0.1) 10%,
+          rgba(0, 0, 0, 0.8) 70%),
+        radial-gradient(circle at 80% 80%, 
+          rgba(100, 255, 255, 0.1) 10%,
+          rgba(0, 0, 0, 0.8) 70%);
+      animation: smokeAnimation 20s infinite linear;
+      mix-blend-mode: screen;
+    }
+
+    /* Nebula Effect */
+    body::after {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -3;
+      background: 
+        radial-gradient(circle at 70% 20%, 
+          rgba(47, 79, 255, 0.1) 0%,
+          rgba(0, 0, 0, 0.8) 40%),
+        radial-gradient(circle at 30% 80%, 
+          rgba(100, 255, 255, 0.1) 0%,
+          rgba(0, 0, 0, 0.8) 40%);
+      animation: nebulaPulse 30s infinite alternate;
+    }
+
+    /* Hologram Notification with Opening Animation */
+    .solo-leveling-notification {
+      position: relative;
+      width: 600px;
+      padding: 2rem;
+      box-sizing: border-box;
+      border: 2px solid rgba(47, 79, 255, 0.8);
+      border-radius: 10px;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      animation: hologramOpen 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards, flicker 2s infinite;
+      box-shadow: 0 0 30px rgba(47, 79, 255, 0.6), 0 0 60px rgba(47, 79, 255, 0.4);
+      overflow: hidden;
+      z-index: 2; /* Ensure notification is above video */
+      transform: scale(0) rotateX(90deg);
+      opacity: 0;
+      transform-origin: center;
+      perspective: 1000px;
+    }
+
+    @keyframes hologramOpen {
+      0% {
+        transform: scale(0) rotateX(90deg);
+        opacity: 0;
+        filter: blur(20px);
+      }
+      70% {
+        transform: scale(1.1) rotateX(-15deg);
+        opacity: 0.8;
+        filter: blur(10px);
+      }
+      100% {
+        transform: scale(1) rotateX(0deg);
+        opacity: 1;
+        filter: blur(0);
+      }
+    }
+
+    @keyframes flicker {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.95; }
+    }
+
+    /* Static Scan Lines */
+    .solo-leveling-notification::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        transparent 50%,
+        rgba(47, 79, 255, 0.1) 50%
+      );
+      background-size: 100% 4px;
+      pointer-events: none;
+    }
+
+    /* Hologram Glow */
+    .solo-leveling-notification::after {
+      content: '';
+      position: absolute;
+      top: -10px;
+      left: -10px;
+      width: calc(100% + 20px);
+      height: calc(100% + 20px);
+      background: radial-gradient(
+        circle,
+        rgba(47, 79, 255, 0.3),
+        rgba(47, 79, 255, 0) 70%
+      );
+      border-radius: 10px;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    .notification-header {
+      text-align: center;
+      font-size: 1.2rem;
+      color: #2f4fff;
+      text-shadow: 0 0 10px #2f4fff;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .notification-header .exclamation-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      width: 30px;
+      height: 30px;
+    }
+
+    .notification-header .exclamation-container .square {
+      width: 100%;
+      height: 100%;
+      border: 2px solid #2f4fff;
+      position: absolute;
+      box-shadow: 0 0 10px rgba(47, 79, 255, 0.8);
+    }
+
+    .notification-header .exclamation-container .exclamation {
+      width: 16px;
+      height: 16px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      fill: #000;
+      filter: drop-shadow(0 0 5px #2f4fff);
+    }
+
+    .notification-message {
+      font-size: 1rem;
+      text-align: center;
+      line-height: 1.6;
+      margin: 1rem 0;
+      color: #fff;
+      text-shadow: 0 0 5px rgba(47, 79, 255, 0.8);
+    }
+
+    .notification-message.try-again {
+      color: #ff4655;
+      text-shadow: 0 0 5px rgba(255, 70, 85, 0.8);
+    }
+
+    .notification-actions {
+      display: flex;
+      justify-content: center;
+      margin-top: 1.5rem;
+    }
+
+    .notification-actions button {
+      background: rgba(47, 79, 255, 0.8);
+      color: #000;
+      border: none;
+      padding: 0.7rem 1.5rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.3s, box-shadow 0.3s;
+      border-radius: 5px;
+      margin: 0 0.5rem;
+      text-shadow: 0 0 5px rgba(47, 79, 255, 0.8);
+    }
+
+    .notification-actions button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 15px #2f4fff;
+    }
+
+    .decline-animation {
+      animation: fadeOut 0.5s ease-out forwards;
+    }
+
+    @keyframes fadeOut {
+      from { opacity: 1; transform: scale(1); }
+      to { opacity: 0; transform: scale(0.9); }
+    }
+
+    /* Video Background */
+    #background-video {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 1; /* Ensure video is behind notification */
+      display: none; /* Initially hidden */
+    }
+  </style>
+</head>
+<body>
+  <!-- Particle Background -->
+  <canvas class="particles" id="particles"></canvas>
+
+  <!-- Video Background -->
+  <video id="background-video" autoplay muted>
+    <source src="you died .mp4" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
+
+  <!-- Initial Notification -->
+  <div class="solo-leveling-notification" id="notification">
+    <div class="notification-header">
+      <div class="exclamation-container">
+        <div class="square"></div>
+        <svg class="exclamation" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+        </svg>
+      </div>
+      NOTIFICATION
+    </div>
+    <div class="notification-message">
+      You have acquired the qualifications to be a Player. Will you accept?
+    </div>
+    <div class="notification-actions">
+      <button onclick="acceptNotification()">Accept</button>
+      <button onclick="declineNotification()">Decline</button>
+    </div>
+  </div>
+
+  <!-- Try Again Notification -->
+  <div class="solo-leveling-notification" id="try-again-notification" style="display: none;">
+    <div class="notification-header">
+      <div class="exclamation-container">
+        <div class="square"></div>
+        <svg class="exclamation" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+        </svg>
+      </div>
+      NOTIFICATION
+    </div>
+    <div class="notification-message try-again">
+      Try Again.
+    </div>
+    <div class="notification-actions">
+      <button onclick="acceptNotification()">Accept</button>
+      <button onclick="declineNotification()">Decline</button>
+    </div>
+  </div>
+
+  <script>
+    // Particle Background
+    const canvas = document.getElementById('particles');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const particles = [];
+    class Particle {
+      constructor() {
+        this.reset();
+      }
+
+      reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 2 + 1;
+        this.speed = Math.random() * 0.5 + 0.1;
+        this.alpha = Math.random() * 0.5 + 0.1;
+      }
+
+      update() {
+        this.y += this.speed;
+        if (this.y > canvas.height) this.reset();
+        ctx.fillStyle = `rgba(47, 79, 255, ${this.alpha})`;
+        ctx.fillRect(this.x, this.y, this.size, this.size);
+      }
+    }
+
+    function initParticles() {
+      for (let i = 0; i < 100; i++) particles.push(new Particle());
+      animateParticles();
+    }
+
+    function animateParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => p.update());
+      requestAnimationFrame(animateParticles);
+    }
+
+    initParticles();
+
+    // Shadow System Class
+    const notification = document.getElementById('notification');
+    const tryAgainNotification = document.getElementById('try-again-notification');
+    const video = document.getElementById('background-video');
+
+    function declineNotification() {
+      // Fade out the notification
+      notification.classList.add('decline-animation');
+
+      // Show and play the video
+      video.style.display = 'block';
+      video.play();
+
+      // Remove notification after animation
+      setTimeout(() => {
+        notification.style.display = 'none';
+      }, 500); // Remove after animation completes
+
+      // When the video ends, show the "Try Again" notification
+      video.onended = () => {
+        video.pause(); // Freeze the video
+        tryAgainNotification.style.display = 'block'; // Show the "Try Again" notification
+      };
+    }
+
+    function acceptNotification() {
+      // Redirect or handle acceptance logic
+      window.location.href = 'form.html';
+    }
+  </script>
+</body>
+</html>
