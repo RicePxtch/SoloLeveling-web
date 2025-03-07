@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Solo Leveling - Challenge System</title>
+  <style>
+    /* General Styles */
+    body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle, #000, #111);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      font-family: 'Orbitron', sans-serif;
+      color: cyan;
+      overflow: auto;
+    }
+
+    /* Particle Background */
+    .particles {
+      position: fixed;
+      width: 100%;
+      height: 1000%;
+      z-index: -1;
+    }
+
+    /* Smoke Effect */
+    .smoke {
+      position: fixed;
+      width: 100%;
+      height: 1000%;
+      z-index: -2;
+      background: 
+        radial-gradient(circle at 20% 20%, 
+          rgba(47, 79, 255, 0.1) 10%,
+          rgba(0, 0, 0, 0.8) 70%),
+        radial-gradient(circle at 80% 80%, 
+          rgba(100, 255, 255, 0.1) 10%,
+          rgba(0, 0, 0, 0.8) 70%);
+      animation: smokeAnimation 20s infinite linear;
+      mix-blend-mode: screen;
+    }
+
+    /* Nebula Effect */
+    body::after {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 1000%;
+      height: 1000%;
+      z-index: -3;
+      background: 
+        radial-gradient(circle at 70% 20%, 
+          rgba(47, 79, 255, 0.1) 0%,
+          rgba(0, 0, 0, 0.8) 40%),
+        radial-gradient(circle at 30% 80%, 
+          rgba(100, 255, 255, 0.1) 0%,
+          rgba(0, 0, 0, 0.8) 40%);
+      animation: nebulaPulse 30s infinite alternate;
+    }
+
+ 
+
+    /* Challenge Grid Container */
+    .challenge-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 30px;
+      padding: 50px;
+      max-width: 1400px;
+      z-index: 1;
+    }
+
+    /* Challenge Card */
+    .challenge-card {
+      position: relative;
+      width: 600px;
+      padding: 25px;
+      border: 2px solid rgba(47, 79, 255, 0.8);
+      border-radius: 10px;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+      box-shadow: 0 0 30px rgba(47, 79, 255, 0.6);
+      animation: hologramOpen 1.2s ease forwards;
+    }
+
+    @keyframes hologramOpen {
+      0% { transform: scale(0) rotateX(90deg); opacity: 0; }
+      100% { transform: scale(1) rotateX(0deg); opacity: 1; }
+    }
+
+    .challenge-card::before,
+    .challenge-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border-radius: 10px;
+      pointer-events: none;
+    }
+
+    .challenge-card::before {
+      background: linear-gradient(transparent 50%, rgba(47, 79, 255, 0.1) 50%);
+      background-size: 100% 4px;
+    }
+
+    .challenge-card::after {
+      background: radial-gradient(circle, rgba(47, 79, 255, 0.3), rgba(47, 79, 255, 0) 70%);
+      z-index: -1;
+    }
+
+    /* Challenge Content */
+    .challenge-content {
+      display: flex;
+      align-items: center;
+    }
+
+    .challenge-icon {
+      width: 120px;
+      height: 120px;
+      margin-right: 25px;
+      filter: hue-rotate(180deg);
+    }
+
+    /* Icon Colors Based on Difficulty */
+    .challenge-icon.high-difficulty {
+      filter: hue-rotate(170deg); /* brown (default) */
+    }
+
+    .challenge-icon.medium-difficulty {
+      filter: hue-rotate(70deg); /* Purple */
+    }
+
+    .challenge-icon.low-difficulty {
+      filter: hue-rotate(10deg); /* Blue */
+    }
+
+    .challenge-info {
+      flex: 1;
+    }
+
+    .challenge-title {
+      font-size: 1.6em;
+      color: white;
+      text-shadow: 0 0 10px cyan;
+      margin-bottom: 15px;
+    }
+
+    .challenge-stats {
+      color: gold;
+      font-size: 1.2em;
+      margin-bottom: 10px;
+    }
+
+    .challenge-rewards {
+      list-style: none;
+      padding: 0;
+      margin: 15px 0;
+    }
+
+    .challenge-rewards li {
+      margin: 8px 0;
+      color: #fff;
+      text-shadow: 0 0 5px rgba(47, 79, 255, 0.8);
+    }
+
+    .challenge-objective {
+      color: #ffcc00;
+      font-size: 0.9em;
+    }
+
+    /* Timer and Button */
+    .challenge-timer {
+      color: #ff5555;
+      font-size: 1.4em;
+      margin-top: 15px;
+    }
+
+    .start-button, .give-up-button {
+      padding: 10px 20px;
+      border: 2px solid rgba(47, 79, 255, 0.8);
+      border-radius: 5px;
+      background: rgba(0, 0, 0, 0.6);
+      color: rgb(0, 81, 255);
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1em;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 10px rgba(47, 79, 255, 0.6);
+    }
+
+    .start-button:hover, .give-up-button:hover {
+      background: rgba(47, 79, 255, 0.8);
+      color: #000;
+      box-shadow: 0 0 20px rgba(47, 79, 255, 0.8);
+    }
+
+    /* Buttons Container */
+    .buttons-container {
+      position: fixed;
+      bottom: 20px;
+      display: flex;
+      gap: 20px;
+      z-index: 2;
+    }
+
+    .button {
+      padding: 10px 20px;
+      border: 2px solid rgba(47, 79, 255, 0.8);
+      border-radius: 5px;
+      background: rgba(0, 0, 0, 0.6);
+      color: cyan;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1em;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 10px rgba(47, 79, 255, 0.6);
+    }
+
+    .button:hover {
+      background: rgba(47, 79, 255, 0.8);
+      color: #000;
+      box-shadow: 0 0 20px rgba(47, 79, 255, 0.8);
+    }
+
+    /* Completion Popup */
+    .completion-popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0, 0, 0, 0.9);
+      border: 2px solid rgba(47, 79, 255, 0.8);
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+      z-index: 1000;
+      box-shadow: 0 0 30px rgba(47, 79, 255, 0.6);
+      display: none;
+    }
+
+    .completion-popup img {
+      width: 150px;
+      height: 150px;
+      margin-bottom: 15px;
+    }
+
+    .completion-popup h3 {
+      color: cyan;
+      text-shadow: 0 0 10px cyan;
+      margin-bottom: 10px;
+    }
+
+    .completion-popup p {
+      color: white;
+      margin-bottom: 10px;
+    }
+
+    .completion-popup button {
+      padding: 10px 20px;
+      border: 2px solid rgba(47, 79, 255, 0.8);
+      border-radius: 5px;
+      background: rgba(0, 0, 0, 0.6);
+      color: cyan;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1em;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 10px rgba(47, 79, 255, 0.6);
+    }
+
+    .completion-popup button:hover {
+      background: rgba(47, 79, 255, 0.8);
+      color: #000;
+      box-shadow: 0 0 20px rgba(47, 79, 255, 0.8);
+    }
+  </style>
+</head>
+<body>
+  <!-- Smoke Effect -->
+  <div class="smoke"></div>
+
+  <!-- Particle Background -->
+  <canvas class="particles" id="particles"></canvas>
+
+  <!-- Challenge Grid -->
+  <div class="challenge-grid">
+    <!-- Shadow Sprint Challenge -->
+    <div class="challenge-card">
+      <div class="challenge-content">
+        <img src="https://imgcdn.sigstick.com/yD1PbqxTscs7mEK1d43b/21.png" class="challenge-icon low-difficulty" alt="Shadow Sprint">
+        <div class="challenge-info">
+          <h2 class="challenge-title">SHADOW SPRINT</h2>
+          <div class="challenge-stats">Primary Stat: Stamina</div>
+          <ul class="challenge-rewards">
+            <li>▸ +3 Stamina</li>
+            <li>▸ +1 Strength</li>
+            <li>▸ Shadow Cloak (Speed Boost)</li>
+          </ul>
+          <div class="challenge-objective">
+            Objective: Sprint 100m in Under 15 Seconds<br>
+            Difficulty: ★★★☆☆
+          </div>
+          <div class="challenge-timer" id="shadowSprintTimer">Time Limit: 0:15</div>
+          <button class="start-button" onclick="startChallenge('shadowSprint', 15)">Start Challenge</button>
+          <button class="give-up-button" onclick="giveUpChallenge('shadowSprint')">Give Up</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Strength Challenge -->
+    <div class="challenge-card">
+      <div class="challenge-content">
+        <img src="https://imgcdn.sigstick.com/yD1PbqxTscs7mEK1d43b/7.png" class="challenge-icon medium-difficulty" alt="Strength">
+        <div class="challenge-info">
+          <h2 class="challenge-title">IRON WILL GYM</h2>
+          <div class="challenge-stats">Primary Stat: Strength</div>
+          <ul class="challenge-rewards">
+            <li>▸ +3 Strength</li>
+            <li>▸ +1 Discipline</li>
+            <li>▸ Protein Shake (Stamina Boost)</li>
+          </ul>
+          <div class="challenge-objective">
+            Objective: 60 Push-Ups in 10 Minutes<br>
+            Difficulty: ★★★☆☆
+          </div>
+          <div class="challenge-timer" id="strengthTimer">Time Limit: 10:00</div>
+          <button class="start-button" onclick="startChallenge('strength', 600)">Start Challenge</button>
+          <button class="give-up-button" onclick="giveUpChallenge('strength')">Give Up</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Discipline Challenge -->
+    <div class="challenge-card">
+      <div class="challenge-content">
+        <img src="https://s3.getstickerpack.com/storage/uploads/sticker-pack/solo-leveling-3/sticker_1.webp?7b557050054e6e22ae0202fda2d82b82&d=200x200" class="challenge-icon low-difficulty" alt="Discipline">
+        <div class="challenge-info">
+          <h2 class="challenge-title">FOCUS TEMPLE</h2>
+          <div class="challenge-stats">Primary Stat: Discipline</div>
+          <ul class="challenge-rewards">
+            <li>▸ +3 Discipline</li>
+            <li>▸ +1 Intelligence</li>
+            <li>▸ Mental Clarity (Focus Boost)</li>
+          </ul>
+          <div class="challenge-objective">
+            Objective: 30-Minute Meditation Session<br>
+            Difficulty: ★★☆☆☆
+          </div>
+          <div class="challenge-timer" id="disciplineTimer">Time Limit: 30:00</div>
+          <button class="start-button" onclick="startChallenge('discipline', 1800)">Start Challenge</button>
+          <button class="give-up-button" onclick="giveUpChallenge('discipline')">Give Up</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Intelligence Challenge -->
+    <div class="challenge-card">
+      <div class="challenge-content">
+        <img src="https://media.stickerswiki.app/sololevelingita/370673.512.webp" class="challenge-icon high-difficulty" alt="Intelligence">
+        <div class="challenge-info">
+          <h2 class="challenge-title">KNOWLEDGE VAULT</h2>
+          <div class="challenge-stats">Primary Stat: Intelligence</div>
+          <ul class="challenge-rewards">
+            <li>▸ +3 Intelligence</li>
+            <li>▸ +1 Social</li>
+            <li>▸ Research Notes (Skill Boost)</li>
+          </ul>
+          <div class="challenge-objective">
+            Objective: Read 50 Pages Technical Material<br>
+            Difficulty: ★★★★☆
+          </div>
+          <div class="challenge-timer" id="intelligenceTimer">Time Limit: 60:00</div>
+          <button class="start-button" onclick="startChallenge('intelligence', 3600)">Start Challenge</button>
+          <button class="give-up-button" onclick="giveUpChallenge('intelligence')">Give Up</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Social Challenge -->
+    <div class="challenge-card">
+      <div class="challenge-content">
+        <img src="https://media.stickerswiki.app/solo_leveling_sticker/6522423.512.webp" class="challenge-icon medium-difficulty" alt="Social">
+        <div class="challenge-info">
+          <h2 class="challenge-title">NETWORKING ARENA</h2>
+          <div class="challenge-stats">Primary Stat: Social</div>
+          <ul class="challenge-rewards">
+            <li>▸ +4 Social</li>
+            <li>▸ +1 Financial</li>
+            <li>▸ Connection Boost (Charisma+)</li>
+          </ul>
+          <div class="challenge-objective">
+            Objective: Have 5 Meaningful Conversations with females (cannot be family)<br>
+            Difficulty: ★★★★★
+          </div>
+          <div class="challenge-timer" id="socialTimer">Time Limit: 24:00:00</div>
+          <button class="start-button" onclick="startChallenge('social', 86400)">Start Challenge</button>
+          <button class="give-up-button" onclick="giveUpChallenge('social')">Give Up</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stamina Challenge -->
+    <div class="challenge-card">
+      <div class="challenge-content">
+        <img src="https://imgcdn.sigstick.com/cwZ5l80mmsFBFfiBZUDQ/10.png" class="challenge-icon high-difficulty" alt="Stamina">
+        <div class="challenge-info">
+          <h2 class="challenge-title">ENDURANCE ZONE</h2>
+          <div class="challenge-stats">Primary Stat: Stamina</div>
+          <ul class="challenge-rewards">
+            <li>▸ +3 Stamina</li>
+            <li>▸ +1 Strength</li>
+            <li>▸ Energy Drink (Stamina Regen)</li>
+          </ul>
+          <div class="challenge-objective">
+            Objective: 5km Run Under 30 Minutes<br>
+            Difficulty: ★★★★☆
+          </div>
+          <div class="challenge-timer" id="staminaTimer">Time Limit: 30:00</div>
+          <button class="start-button" onclick="startChallenge('stamina', 1800)">Start Challenge</button>
+          <button class="give-up-button" onclick="giveUpChallenge('stamina')">Give Up</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Aura Farming Challenge -->
+    <div class="challenge-card">
+      <div class="challenge-content">
+        <img src="https://s3.getstickerpack.com/storage/uploads/sticker-pack/solo-leveling-3/sticker_6.webp?7b557050054e6e22ae0202fda2d82b82&d=200x200" alt="Aura Farming">
+        <div class="challenge-info">
+          <h2 class="challenge-title">AURA FARMING: THE PARK</h2>
+          <div class="challenge-stats">Primary Stat: Social</div>
+          <ul class="challenge-rewards">
+            <li>▸ +3 Social</li>
+            <li>▸ +1 Discipline</li>
+            <li>▸ Aura Boost (Charisma+)</li>
+          </ul>
+          <div class="challenge-objective">
+            Objective: Beat up the enemy stand user in 30 Minutes (it's that old lady)<br>
+            Difficulty: ★★★★★
+          </div>
+          <div class="challenge-timer" id="auraFarmingTimer">Time Limit: 30:00</div>
+          <button class="start-button" onclick="startChallenge('auraFarming', 1800)">Start Challenge</button>
+          <button class="give-up-button" onclick="giveUpChallenge('auraFarming')">Give Up</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Buttons Container -->
+  <div class="buttons-container">
+    <button class="button" onclick="window.location.href='form.html'">Generate Rank</button>
+    <button class="button" onclick="window.location.href='stats.html'">View Stats</button>
+    <button class="button" onclick="window.location.href='card.html'">View Card</button>
+  </div>
+
+  <!-- Completion Popup -->
+  <div class="completion-popup" id="completionPopup">
+    <img src="https://imgcdn.sigstick.com/cwZ5l80mmsFBFfiBZUDQ/18.png" alt="Completion Image">
+    <h3>Challenge Complete!</h3>
+    <p id="completionMessage"></p>
+    <button onclick="closeCompletionPopup()">Close</button>
+  </div>
+
+  <script>
+    // Particle Background
+    const canvas = document.getElementById('particles');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const particles = [];
+    class Particle {
+      constructor() {
+        this.reset();
+      }
+
+      reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 2;
+        this.speed = Math.random() * 0.5 + 0.1;
+        this.alpha = Math.random() * 0.5 + 0.1;
+      }
+
+      update() {
+        this.y += this.speed;
+        if (this.y > canvas.height) this.reset();
+        ctx.fillStyle = `rgba(47, 79, 255, ${this.alpha})`;
+        ctx.fillRect(this.x, this.y, this.size, this.size);
+      }
+    }
+
+    function initParticles() {
+      for (let i = 0; i < 100; i++) particles.push(new Particle());
+      animateParticles();
+    }
+
+    function animateParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(p => p.update());
+      requestAnimationFrame(animateParticles);
+    }
+
+    initParticles();
+
+    // Shadow System Class
+    class ShadowSystem {
+      constructor() {
+        this.stats = {
+          Intelligence: 0,
+          Strength: 0,
+          Discipline: 0,
+          Social: 0,
+          Financial: 0,
+          Stamina: 0
+        };
+        this.level = 1;
+        this.loadProgress();
+      }
+
+      updateStat(stat, value) {
+        this.stats[stat] += value;
+        this.checkLevelUp();
+        this.saveProgress();
+      }
+
+      get totalPoints() {
+        return Object.values(this.stats).reduce((a, b) => a + b, 0);
+      }
+
+      checkLevelUp() {
+        const pointsNeeded = this.level * 6; // Points needed for next level
+        if (this.totalPoints >= pointsNeeded) {
+          this.level++;
+          this.stats = {
+            Intelligence: 0,
+            Strength: 0,
+            Discipline: 0,
+            Social: 0,
+            Financial: 0,
+            Stamina: 0
+          };
+          this.showNotification(`LEVEL UP! 🎉 Now Level ${this.level}`, 'success');
+        }
+      }
+
+      showNotification(text, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        notification.innerHTML = `<span>${text}</span>`;
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+          notification.style.opacity = '0';
+          setTimeout(() => notification.remove(), 300);
+        }, 2700);
+      }
+
+      saveProgress() {
+        localStorage.setItem('shadowSystem', JSON.stringify({
+          stats: this.stats,
+          level: this.level
+        }));
+      }
+
+      loadProgress() {
+        const data = JSON.parse(localStorage.getItem('shadowSystem'));
+        if (data) {
+          this.stats = data.stats;
+          this.level = data.level;
+        }
+      }
+    }
+
+    // Initialize the system
+    const system = new ShadowSystem();
+
+    // Timer System
+    let activeTimers = {};
+
+    function startTimer(duration, timerElement, callback) {
+      let timer = duration;
+      const interval = setInterval(() => {
+        const minutes = Math.floor(timer / 60);
+        const seconds = timer % 60;
+        timerElement.textContent = `Time Left: ${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+        if (--timer < 0) {
+          clearInterval(interval);
+          callback();
+        }
+      }, 1000);
+
+      return interval;
+    }
+
+    // Completion Popup Functions
+    function showCompletionPopup(message) {
+      const popup = document.getElementById('completionPopup');
+      const messageElement = document.getElementById('completionMessage');
+      messageElement.textContent = message;
+      popup.style.display = 'block';
+    }
+
+    function closeCompletionPopup() {
+      const popup = document.getElementById('completionPopup');
+      popup.style.display = 'none';
+    }
+
+    // Challenge System
+    function startChallenge(type, duration) {
+      const rewards = {
+        shadowSprint: { main: 'Stamina', value: 3, secondary: 'Strength', secondaryValue: 1 },
+        strength: { main: 'Strength', value: 3, secondary: 'Discipline', secondaryValue: 1 },
+        discipline: { main: 'Discipline', value: 3, secondary: 'Intelligence', secondaryValue: 1 },
+        intelligence: { main: 'Intelligence', value: 3, secondary: 'Social', secondaryValue: 1 },
+        social: { main: 'Social', value: 3, secondary: 'Financial', secondaryValue: 1 },
+        stamina: { main: 'Stamina', value: 3, secondary: 'Strength', secondaryValue: 1 },
+        auraFarming: { main: 'Social', value: 3, secondary: 'Discipline', secondaryValue: 1 }
+      };
+
+      if (confirm(`Start ${type} challenge?`)) {
+        const timerElement = document.getElementById(`${type}Timer`);
+        if (!timerElement) {
+          console.error(`Timer element for ${type} not found!`);
+          return;
+        }
+
+        // Clear any existing timer for this challenge
+        if (activeTimers[type]) {
+          clearInterval(activeTimers[type]);
+        }
+
+        // Start the new timer
+        activeTimers[type] = startTimer(duration, timerElement, () => {
+          system.updateStat(rewards[type].main, rewards[type].value);
+          if (rewards[type].secondary) {
+            system.updateStat(rewards[type].secondary, rewards[type].secondaryValue);
+          }
+          const message = `+${rewards[type].value} ${rewards[type].main} and +${rewards[type].secondaryValue} ${rewards[type].secondary} earned!`;
+          showCompletionPopup(message);
+          delete activeTimers[type]; // Clear the timer
+        });
+      }
+    }
+
+    // Give Up Function
+    function giveUpChallenge(type) {
+      if (confirm("Are you sure you want to give up this challenge?")) {
+        if (activeTimers[type]) {
+          clearInterval(activeTimers[type]); // Stop the timer
+          delete activeTimers[type]; // Remove the timer from active timers
+        }
+        system.showNotification(`You gave up the ${type} challenge. No rewards earned.`, 'error');
+      }
+    }
+  </script>
+</body>
+</html>
