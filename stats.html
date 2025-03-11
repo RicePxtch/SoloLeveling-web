@@ -71,8 +71,6 @@
       mix-blend-mode: screen;
     }
 
-   
-
     /* Nebula Effect */
     body::after {
       content: '';
@@ -404,7 +402,7 @@
           <option value="Strength">Strength</option>
           <option value="Discipline">Discipline</option>
           <option value="Social">Social Skills</option>
-          <option value="Finance">Finance</option>
+          <option value="Financial">Financial</option>
           <option value="Stamina">Stamina</option>
         </select>
         <button onclick="addQuest()">Add Quest</button>
@@ -504,6 +502,7 @@
         this.activeQuests = [];
         this.level = 1;
         this.money = 0;
+        this.progressPoints = 0; // Tracks points toward next level
         this.loadProgress();
         this.setupDailyReset();
         this.renderAll();
@@ -512,27 +511,17 @@
       // Core Stat Management
       updateStat(stat, value) {
         this.stats[stat] += value;
+        this.progressPoints += value; // Add to progress counter
         this.checkLevelUp();
         this.saveProgress();
         this.renderAll();
       }
 
-      get totalPoints() {
-        return Object.values(this.stats).reduce((a, b) => a + b, 0);
-      }
-
       checkLevelUp() {
         const pointsNeeded = this.level * 6; // Points needed for next level
-        if (this.totalPoints >= pointsNeeded) {
+        if (this.progressPoints >= pointsNeeded) {
           this.level++;
-          this.stats = {
-            Intelligence: 0,
-            Strength: 0,
-            Discipline: 0,
-            Social: 0,
-            Financial: 0,
-            Stamina: 0
-          };
+          this.progressPoints = 0; // Reset progress counter
           this.showNotification(`LEVEL UP! 🎉 Now Level ${this.level}`, 'success');
           this.animateLevelUp();
         }
@@ -615,12 +604,11 @@
       }
 
       renderLevel() {
-        const total = this.totalPoints;
-        const pointsNeeded = this.level * 6; // Points needed for current level
-        const progress = (total / pointsNeeded) * 100;
+        const pointsNeeded = this.level * 6;
+        const progress = (this.progressPoints / pointsNeeded) * 100;
 
         document.getElementById('currentLevel').textContent = this.level;
-        document.getElementById('totalPoints').textContent = total;
+        document.getElementById('totalPoints').textContent = this.progressPoints;
         document.getElementById('totalPointsNeeded').textContent = pointsNeeded;
         document.getElementById('levelProgress').style.width = `${Math.min(progress, 100)}%`;
       }
@@ -653,6 +641,7 @@
           stats: this.stats,
           level: this.level,
           money: this.money,
+          progressPoints: this.progressPoints,
           activeQuests: this.activeQuests
         }));
       }
@@ -660,8 +649,9 @@
       loadProgress() {
         const data = JSON.parse(localStorage.getItem('shadowSystem'));
         if (data) {
-          this.stats = data.stats;
-          this.level = data.level;
+          this.stats = data.stats || this.stats;
+          this.level = data.level || 1;
+          this.progressPoints = data.progressPoints || 0;
           this.money = data.money || 0;
           this.activeQuests = data.activeQuests || [];
           this.renderAll();
@@ -680,6 +670,7 @@
           };
           this.activeQuests = [];
           this.level = 1;
+          this.progressPoints = 0;
           this.money = 0;
           this.saveProgress();
           this.renderAll();
