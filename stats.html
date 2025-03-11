@@ -362,13 +362,17 @@
         <span class="stat-label">Social Skills</span>
         <span id="socialStat">0</span>
       </div>
+      <div class="stat-item" style="grid-column: 2; grid-row: 2;">
+        <span class="stat-label">Stamina</span>
+        <span id="staminaStat">0</span>
+      </div>
       <div class="stat-item">
         <span class="stat-label">Financial</span>
         <span id="financialStat">0</span>
       </div>
-      <div class="stat-item">
-        <span class="stat-label">Stamina</span>
-        <span id="staminaStat">0</span>
+      <div class="stat-item" style="grid-column: 2; grid-row: 3;">
+        <span class="stat-label">Physical Appearance</span>
+        <span id="appearanceStat">0</span>
       </div>
     </div>
 
@@ -404,6 +408,7 @@
           <option value="Social">Social Skills</option>
           <option value="Financial">Financial</option>
           <option value="Stamina">Stamina</option>
+          <option value="Appearance">Physical Appearance</option>
         </select>
         <button onclick="addQuest()">Add Quest</button>
       </div>
@@ -497,7 +502,8 @@
           Discipline: 0,
           Social: 0,
           Financial: 0,
-          Stamina: 0
+          Stamina: 0,
+          Appearance: 0
         };
         this.activeQuests = [];
         this.level = 1;
@@ -601,6 +607,7 @@
         document.getElementById('socialStat').textContent = this.stats.Social;
         document.getElementById('financialStat').textContent = this.stats.Financial;
         document.getElementById('staminaStat').textContent = this.stats.Stamina;
+        document.getElementById('appearanceStat').textContent = this.stats.Appearance;
       }
 
       renderLevel() {
@@ -666,7 +673,8 @@
             Discipline: 0,
             Social: 0,
             Financial: 0,
-            Stamina: 0
+            Stamina: 0,
+            Appearance: 0
           };
           this.activeQuests = [];
           this.level = 1;
