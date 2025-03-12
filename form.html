@@ -117,8 +117,8 @@
     <div class="form-container">
         <h2>Enter Player Information</h2>
         <input type="text" id="inputName" placeholder="Enter Name" />
-        <input type="text" id="inputTitle" placeholder="Enter Job" />
         <input type="number" id="inputPushups" placeholder="Push-ups (Previous: 0)" />
+        <input type="number" id="inputPullups" placeholder="Pull-ups (Previous: 0)" />
         <input type="number" id="inputSquats" placeholder="Squats (Previous: 0)" />
         <input type="number" id="inputSitups" placeholder="Sit-ups (Previous: 0)" />
         <input type="file" id="uploadImage" accept="image/*" />
@@ -128,45 +128,58 @@
     <script>
         // Load previous player info
         const playerInfo = JSON.parse(localStorage.getItem("playerInfo")) || {};
-
+        
         // Set previous values
         document.getElementById("inputName").value = playerInfo.name || "";
-        document.getElementById("inputTitle").value = playerInfo.title || "";
         document.getElementById("inputPushups").placeholder = `Push-ups (Previous: ${playerInfo.pushups || 0})`;
+        document.getElementById("inputPullups").placeholder = `Pull-ups (Previous: ${playerInfo.pullups || 0})`;
         document.getElementById("inputSquats").placeholder = `Squats (Previous: ${playerInfo.squats || 0})`;
         document.getElementById("inputSitups").placeholder = `Sit-ups (Previous: ${playerInfo.situps || 0})`;
 
-        // If previous image exists, show message
+        // Image handling
+        const imageUpload = document.getElementById("uploadImage");
         if(playerInfo.image) {
-            document.getElementById("uploadImage").previousElementSibling.textContent = "Image already uploaded";
+            imageUpload.parentNode.insertAdjacentHTML('beforebegin', '<p style="color:#00ff9d"></p>');
+        }
+
+        // Rank thresholds matching card.html
+        const rankThresholds = {
+            F: 0,
+            E: 50,
+            D: 100,
+            C: 200,
+            B: 300,
+            A: 400,
+            S: 500
+        };
+
+        function getCurrentRank(points) {
+            let currentRank = 'F';
+            for (const [rank, threshold] of Object.entries(rankThresholds)) {
+                if (points >= threshold) currentRank = rank;
+            }
+            return currentRank;
         }
 
         function submitForm() {
             const name = document.getElementById("inputName").value || playerInfo.name;
-            const title = document.getElementById("inputTitle").value || playerInfo.title;
             const pushups = parseInt(document.getElementById("inputPushups").value) || playerInfo.pushups || 0;
+            const pullups = parseInt(document.getElementById("inputPullups").value) || playerInfo.pullups || 0;
             const squats = parseInt(document.getElementById("inputSquats").value) || playerInfo.squats || 0;
             const situps = parseInt(document.getElementById("inputSitups").value) || playerInfo.situps || 0;
             const imageFile = document.getElementById("uploadImage").files[0];
 
-            // Calculate rank based on workout points
-            const totalPoints = pushups + squats + situps;
-            let rank = "E";
-            if (totalPoints > 300) rank = "S";
-            else if (totalPoints > 200) rank = "A";
-            else if (totalPoints > 160) rank = "B";
-            else if (totalPoints > 120) rank = "C";
-            else if (totalPoints > 80) rank = "D";
-            else if (totalPoints > 40) rank = "F";
+            // Calculate total points and rank
+            const totalPoints = pushups + pullups + squats + situps;
+            const rank = getCurrentRank(totalPoints);
 
-            const reader = new FileReader();
-            reader.onload = function (e) {
+            const processSubmission = (imageURL = playerInfo.image) => {
                 const newPlayerInfo = {
                     name: name,
-                    title: title,
                     rank: rank,
-                    image: e.target.result || playerInfo.image,
+                    image: imageURL || "",
                     pushups: pushups,
+                    pullups: pullups,
                     squats: squats,
                     situps: situps
                 };
@@ -175,19 +188,11 @@
             };
 
             if (imageFile) {
+                const reader = new FileReader();
+                reader.onload = (e) => processSubmission(e.target.result);
                 reader.readAsDataURL(imageFile);
             } else {
-                const newPlayerInfo = {
-                    name: name,
-                    title: title,
-                    rank: rank,
-                    image: playerInfo.image || "",
-                    pushups: pushups,
-                    squats: squats,
-                    situps: situps
-                };
-                localStorage.setItem("playerInfo", JSON.stringify(newPlayerInfo));
-                window.location.href = "card.html";
+                processSubmission();
             }
         }
 
