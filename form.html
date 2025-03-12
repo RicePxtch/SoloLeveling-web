@@ -21,12 +21,34 @@
             overflow: hidden;
         }
 
+        /* Video Background */
+        .video-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .video-background video {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: translate(-50%, -50%);
+            opacity: 0.3; /* Adjust opacity as needed */
+        }
+
         /* Particle Background */
         .particles {
             position: fixed;
             width: 100%;
             height: 100%;
-            z-index: -1;
+            z-index: -2;
         }
 
         /* Enhanced Smoke Effect */
@@ -34,7 +56,7 @@
             position: fixed;
             width: 300%;
             height: 300%;
-            z-index: -2;
+            z-index: -3;
             background: 
                 radial-gradient(circle at 20% 20%, 
                     rgba(47, 79, 255, 0.1) 10%,
@@ -107,6 +129,14 @@
     </style>
 </head>
 <body>
+    <!-- Video Background -->
+    <div class="video-background">
+        <video autoplay loop muted playsinline>
+            <source src="videos/solo-leveling-statue.3840x2160.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+    </div>
+
     <!-- Smoke Effect -->
     <div class="smoke"></div>
 
