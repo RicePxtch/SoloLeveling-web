@@ -4,9 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Player Card - Hologram Style</title>
-    <body>
-        <audio autoplay src="videos/system ad 2.MP3"></audio>
-    </body>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron&display=swap');
 
@@ -52,7 +49,7 @@
             z-index: -1;
         }
 
-        /*Smoke Effect */
+        /* Smoke Effect */
         .smoke {
             position: fixed;
             width: 300%;
@@ -75,7 +72,7 @@
             100% { transform: scale(1) rotate(360deg); opacity: 0.3; }
         }
 
-        /*Nebula Effect */
+        /* Nebula Effect */
         body::after {
             content: '';
             position: fixed;
@@ -98,8 +95,6 @@
             from { opacity: 0.3; filter: hue-rotate(0deg); }
             to { opacity: 0.6; filter: hue-rotate(360deg); }
         }
-
-    
 
         /* Player Card */
         .player-card {
@@ -218,6 +213,23 @@
             text-shadow: 0 0 10px gold;
         }
 
+        /* Progress Bar */
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: rgba(47, 79, 255, 0.2);
+            border-radius: 5px;
+            margin-top: 10px;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, rgba(47, 79, 255, 0.8), rgba(47, 79, 255, 0.4));
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
         /* Buttons Container */
         .buttons-container {
             position: absolute;
@@ -245,6 +257,23 @@
             color: #000;
             box-shadow: 0 0 20px rgba(47, 79, 255, 0.8);
         }
+
+        /* Level Display */
+        .level-display {
+            font-size: 1.2em;
+            color: #0026ff;
+            text-shadow: 0 0 10px #1e00ff;
+        }
+
+        /* Title Glow Animation */
+        .unlocked-title {
+            animation: titleGlow 1.5s infinite alternate;
+        }
+
+        @keyframes titleGlow {
+            from { text-shadow: 0 0 5px rgb(0, 4, 255); }
+            to { text-shadow: 0 0 20px rgb(255, 0, 0), 0 0 10px blue; }
+        }
     </style>
 </head>
 <body>
@@ -262,11 +291,16 @@
         <img id="profileImage" src="" alt="Profile Image" onload="this.style.opacity = 1;">
         <div class="player-info">
             <h2 id="playerName">Player Name</h2>
-            <p id="playerTitle">Job: Unknown</p>
+            <p class="level-display">Level: <span id="playerLevel">1</span></p>
+            <p id="playerTitle" class="unlocked-title">Title: Novice</p>
             <p>Push-ups: <span id="playerPushups">0</span></p>
+            <p>Pull-ups: <span id="playerPullups">0</span></p>
             <p>Squats: <span id="playerSquats">0</span></p>
             <p>Sit-ups: <span id="playerSitups">0</span></p>
             <p class="rank">Rank: <span id="playerRank">F</span></p>
+            <div class="progress-bar">
+                <div class="progress-bar-fill" id="progressBarFill"></div>
+            </div>
         </div>
     </div>
 
@@ -278,44 +312,116 @@
     </div>
 
     <script>
-        // Retrieve player info from localStorage
-        const playerInfo = JSON.parse(localStorage.getItem("playerInfo"));
+        // Rank and Title System
+        const rankTitles = {
+            F: { 
+                threshold: 0,
+                title: "Novice Shadow",
+                color: "#808080"
+            },
+            E: {
+                threshold: 50,
+                title: "Apprentice Hunter",
+                color: "#00ff9d"
+            },
+            D: {
+                threshold: 100,
+                title: "Iron Warrior",
+                color: "#4169E1"
+            },
+            C: {
+                threshold: 200,
+                title: "Crimson Reaper",
+                color: "#FF2400"
+            },
+            B: {
+                threshold: 300,
+                title: "Void Walker",
+                color: "#5D3FD3"
+            },
+            A: {
+                threshold: 400,
+                title: "Dragon Sovereign",
+                color: "#F4C430"
+            },
+            S: {
+                threshold: 500,
+                title: "Eclipse Monarch",
+                color: "#7B1818"
+            }
+        };
 
-        // Update player card with data
-        if (playerInfo) {
+        // Load Player Info
+        const playerInfo = JSON.parse(localStorage.getItem("playerInfo")) || {};
+
+        // Update Player Card
+        function updatePlayerCard() {
+            const stats = JSON.parse(localStorage.getItem("shadowSystem")) || {};
+            const totalPoints = (playerInfo.pushups || 0) + (playerInfo.pullups || 0) + (playerInfo.squats || 0) + (playerInfo.situps || 0);
+
             document.getElementById("playerName").innerText = playerInfo.name || "Unknown";
-            document.getElementById("playerTitle").innerText = `Job: ${playerInfo.title || "Unknown"}`;
-            document.getElementById("playerPushups").innerText = playerInfo.pushups || 0;
-            document.getElementById("playerSquats").innerText = playerInfo.squats || 0;
-            document.getElementById("playerSitups").innerText = playerInfo.situps || 0;
-            document.getElementById("playerRank").innerText = playerInfo.rank || "F";
-            
-            // Handle image loading
+            document.getElementById("playerLevel").textContent = stats.level || 1;
+            document.getElementById("playerPushups").textContent = playerInfo.pushups || 0;
+            document.getElementById("playerPullups").textContent = playerInfo.pullups || 0;
+            document.getElementById("playerSquats").textContent = playerInfo.squats || 0;
+            document.getElementById("playerSitups").textContent = playerInfo.situps || 0;
+
+            const currentRank = getCurrentRank(totalPoints);
+            document.getElementById("playerRank").textContent = currentRank;
+            document.getElementById("playerTitle").textContent = `Title: ${rankTitles[currentRank].title}`;
+            document.getElementById("playerTitle").style.color = rankTitles[currentRank].color;
+
+            updateProgressBar(totalPoints);
+
+            // Load profile image
             const profileImage = document.getElementById("profileImage");
             if (playerInfo.image) {
                 profileImage.src = playerInfo.image;
+                profileImage.style.opacity = 1;
             } else {
                 profileImage.style.display = "none";
             }
         }
 
-        // Save Card Function
+        // Get Current Rank
+        function getCurrentRank(points) {
+            let currentRank = 'F';
+            for (const [rank, data] of Object.entries(rankTitles)) {
+                if (points >= data.threshold) currentRank = rank;
+            }
+            return currentRank;
+        }
+
+        // Update Progress Bar
+        function updateProgressBar(points) {
+            const currentRank = getCurrentRank(points);
+            const nextRank = Object.keys(rankTitles).find(rank => rankTitles[rank].threshold > rankTitles[currentRank].threshold);
+
+            if (nextRank) {
+                const currentThreshold = rankTitles[currentRank].threshold;
+                const nextThreshold = rankTitles[nextRank].threshold;
+                const progress = ((points - currentThreshold) / (nextThreshold - currentThreshold)) * 100;
+                document.getElementById("progressBarFill").style.width = `${Math.min(progress, 100)}%`;
+            }
+        }
+
+        // Save Card
         function saveCard() {
             const playerInfo = {
                 name: document.getElementById("playerName").innerText,
-                title: document.getElementById("playerTitle").innerText.replace("Job: ", ""),
                 pushups: parseInt(document.getElementById("playerPushups").innerText),
+                pullups: parseInt(document.getElementById("playerPullups").innerText),
                 squats: parseInt(document.getElementById("playerSquats").innerText),
                 situps: parseInt(document.getElementById("playerSitups").innerText),
                 rank: document.getElementById("playerRank").innerText,
+                level: parseInt(document.getElementById("playerLevel").textContent) || 1,
                 image: document.getElementById("profileImage").src
             };
-
             localStorage.setItem("playerInfo", JSON.stringify(playerInfo));
             showNotification("Card saved successfully!");
         }
 
-        // Notification system
+        // Show Notification
         function showNotification(message) {
             const notification = document.getElementById("notification");
             notification.textContent = message;
@@ -326,7 +432,7 @@
             }, 2000);
         }
 
-        //Particle System
+        // Particle System
         const canvas = document.getElementById('particles');
         const ctx = canvas.getContext('2d');
         canvas.width = window.innerWidth;
@@ -341,7 +447,7 @@
             reset() {
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * canvas.height;
-                this.size = Math.random() * 2 + 1;
+                this.size = Math.random() * 2;
                 this.speed = Math.random() * 0.5 + 0.1;
                 this.alpha = Math.random() * 0.5 + 0.1;
             }
@@ -355,7 +461,7 @@
         }
 
         function initParticles() {
-            for (let i = 0; i < 150; i++) particles.push(new Particle());
+            for (let i = 0; i < 100; i++) particles.push(new Particle());
             animateParticles();
         }
 
@@ -372,6 +478,9 @@
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
         });
+
+        // Initialize
+        updatePlayerCard();
     </script>
 </body>
 </html>
