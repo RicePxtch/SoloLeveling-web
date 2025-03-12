@@ -21,6 +21,34 @@
             overflow: hidden;
         }
 
+        /* Rank Videos */
+        .rank-videos {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            overflow: hidden;
+        }
+
+        .rank-video {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+            pointer-events: none;
+        }
+
+        .rank-video.active {
+            opacity: 0.5; /* Adjust opacity as needed */
+        }
+
         /* Notification Style */
         .notification {
             position: fixed;
@@ -46,7 +74,7 @@
             position: fixed;
             width: 100%;
             height: 100%;
-            z-index: -1;
+            z-index: -3;
         }
 
         /* Smoke Effect */
@@ -54,7 +82,7 @@
             position: fixed;
             width: 300%;
             height: 300%;
-            z-index: -2;
+            z-index: -4;
             background: 
                 radial-gradient(circle at 20% 20%, 
                     rgba(47, 79, 255, 0.1) 10%,
@@ -80,7 +108,7 @@
             left: -50%;
             width: 200%;
             height: 200%;
-            z-index: -3;
+            z-index: -5;
             background: 
                 radial-gradient(circle at 70% 20%, 
                     rgba(47, 79, 255, 0.1) 0%,
@@ -89,11 +117,6 @@
                     rgba(100, 255, 255, 0.1) 0%,
                     rgba(0, 0, 0, 0.8) 40%);
             animation: nebulaPulse 30s infinite alternate, rotate 120s linear infinite;
-        }
-
-        @keyframes nebulaPulse {
-            from { opacity: 0.3; filter: hue-rotate(0deg); }
-            to { opacity: 0.6; filter: hue-rotate(360deg); }
         }
 
         /* Player Card */
@@ -283,6 +306,31 @@
     <!-- Particle Background -->
     <canvas class="particles" id="particles"></canvas>
 
+    <!-- Rank Videos -->
+    <div class="rank-videos">
+        <video id="f-rank-video" class="rank-video" loop muted playsinline>
+            <source src="videos/solo-leveling-statue.3840x2160.mp4" type="video/mp4">
+        </video>
+        <video id="e-rank-video" class="rank-video" loop muted playsinline>
+            <source src="videos/sung-jin-woo-sacrifice-solo-leveling-moewalls-com.mp4" type="video/mp4">
+        </video>
+        <video id="d-rank-video" class="rank-video" loop muted playsinline>
+            <source src="videos/miyamoto-musashi-bloody-katana-vagabond-moewalls-com.mp4" type="video/mp4">
+        </video>
+        <video id="c-rank-video" class="rank-video" loop muted playsinline>
+            <source src="videos/magical-red-tree.3840x2160.mp4" type="video/mp4">
+        </video>
+        <video id="b-rank-video" class="rank-video" loop muted playsinline>
+            <source src="videos/purple-knight-moewalls-com.mp4" type="video/mp4">
+        </video>
+        <video id="a-rank-video" class="rank-video" loop muted playsinline>
+            <source src="videos/butterfly-anime-girl-moon-moewalls-com.mp4" type="video/mp4">
+        </video>
+        <video id="s-rank-video" class="rank-video" loop muted playsinline>
+            <source src="videos/eclipse.mp4" type="video/mp4">
+        </video>
+    </div>
+
     <!-- Notification -->
     <div class="notification" id="notification"></div>
 
@@ -314,41 +362,13 @@
     <script>
         // Rank and Title System
         const rankTitles = {
-            F: { 
-                threshold: 0,
-                title: "Novice Shadow",
-                color: "#808080"
-            },
-            E: {
-                threshold: 50,
-                title: "Apprentice Hunter",
-                color: "#00ff9d"
-            },
-            D: {
-                threshold: 100,
-                title: "Iron Warrior",
-                color: "#4169E1"
-            },
-            C: {
-                threshold: 200,
-                title: "Crimson Reaper",
-                color: "#FF2400"
-            },
-            B: {
-                threshold: 300,
-                title: "Void Walker",
-                color: "#5D3FD3"
-            },
-            A: {
-                threshold: 400,
-                title: "Dragon Sovereign",
-                color: "#F4C430"
-            },
-            S: {
-                threshold: 500,
-                title: "Eclipse Monarch",
-                color: "#7B1818"
-            }
+            F: { threshold: 0, title: "Novice Shadow", color: "#808080" },
+            E: { threshold: 50, title: "Apprentice Hunter", color: "#00ff9d" },
+            D: { threshold: 100, title: "Iron Warrior", color: "#4169E1" },
+            C: { threshold: 200, title: "Crimson Reaper", color: "#FF2400" },
+            B: { threshold: 300, title: "Void Walker", color: "#5D3FD3" },
+            A: { threshold: 400, title: "Dragon Sovereign", color: "#F4C430" },
+            S: { threshold: 500, title: "Eclipse Monarch", color: "#7B1818" }
         };
 
         // Load Player Info
@@ -371,9 +391,10 @@
             document.getElementById("playerTitle").textContent = `Title: ${rankTitles[currentRank].title}`;
             document.getElementById("playerTitle").style.color = rankTitles[currentRank].color;
 
+            updateRankBackground(currentRank);
             updateProgressBar(totalPoints);
+            updatePlayerCardColor(currentRank);
 
-            // Load profile image
             const profileImage = document.getElementById("profileImage");
             if (playerInfo.image) {
                 profileImage.src = playerInfo.image;
@@ -403,6 +424,43 @@
                 const progress = ((points - currentThreshold) / (nextThreshold - currentThreshold)) * 100;
                 document.getElementById("progressBarFill").style.width = `${Math.min(progress, 100)}%`;
             }
+        }
+
+        // Update Rank Background
+        function updateRankBackground(currentRank) {
+            const rankVideos = {
+                'F': document.getElementById('f-rank-video'),
+                'E': document.getElementById('e-rank-video'),
+                'D': document.getElementById('d-rank-video'),
+                'C': document.getElementById('c-rank-video'),
+                'B': document.getElementById('b-rank-video'),
+                'A': document.getElementById('a-rank-video'),
+                'S': document.getElementById('s-rank-video')
+            };
+
+            Object.values(rankVideos).forEach(video => {
+                video.pause();
+                video.classList.remove('active');
+            });
+
+            const currentVideo = rankVideos[currentRank];
+            if (currentVideo) {
+                currentVideo.classList.add('active');
+                currentVideo.play().catch(error => {
+                    console.log('Video autoplay failed:', error);
+                });
+            }
+        }
+
+        // Update Player Card Color Based on Rank
+        function updatePlayerCardColor(currentRank) {
+            const playerCard = document.querySelector('.player-card');
+            const rankColor = rankTitles[currentRank].color;
+
+            playerCard.style.borderColor = rankColor;
+            playerCard.style.boxShadow = `0 0 30px ${rankColor}, 0 0 60px ${rankColor}`;
+            playerCard.querySelector('img').style.borderColor = rankColor;
+            playerCard.querySelector('img').style.boxShadow = `0 0 15px ${rankColor}`;
         }
 
         // Save Card
